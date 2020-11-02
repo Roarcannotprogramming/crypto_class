@@ -18,23 +18,27 @@ func main() {
 
 	sbox := &[16]uint8{0x6, 0x4, 0xc, 0x5, 0x0, 0x7, 0x2, 0xe, 0x1, 0xf, 0x3, 0xd, 0x8, 0xa, 0x9, 0xb}
 	re_sbox := &[16]uint8{0x4, 0x8, 0x6, 0xa, 0x1, 0x3, 0x0, 0x5, 0xc, 0xe, 0xd, 0xf, 0x2, 0xb, 0x7, 0x9}
-	inp := msg[:]
-	fmt.Printf("Key: %#x\n", key)
 	ebox := &Ebox{roundnb: 5, sbox: sbox, re_sbox: re_sbox}
+
+	inp := msg[:]
+
 	outp, err := ebox.Encrypt(inp, key)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
-	fmt.Printf("Original Massage: %#x\n", msg)
-	fmt.Printf("Encrypted Cipher: %#x\n", outp)
 
 	inp, err = ebox.Decrypt(outp, key)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
+
 	fmt.Printf("Decrypted message: %#x\n", inp)
+	fmt.Printf("Key: %#x\n", key)
+	fmt.Printf("Original Massage: %#x\n", msg)
+	fmt.Printf("Encrypted Cipher: %#x\n", outp)
+
 }
 
 func (e Ebox) encRound(inp []uint8) (outp []uint8, err error) {
