@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-	// msg := [2]uint8{0xca, 0xfe}
 	key := [][2]uint8{{0x12, 0x34}, {0x56, 0x78}, {0x9a, 0xbc}, {0xde, 0xf0}, {0xde, 0xad}, {0xca, 0xfe}}
 
 	sbox := &[16]uint8{0x6, 0x4, 0xc, 0x5, 0x0, 0x7, 0x2, 0xe, 0x1, 0xf, 0x3, 0xd, 0x8, 0xa, 0x9, 0xb}
@@ -22,6 +21,7 @@ func main() {
 	// Recover the last round key
 	prob_key := uint8(0)
 	most_vote := uint64(0)
+	rcvd_key := []uint8{0x00, 0x00}
 	fmt.Println("======= 0~3 bits =======")
 	diff[0] = 0x20
 	guess_diff[0] = 0x02
@@ -37,6 +37,7 @@ func main() {
 		}
 		fmt.Printf("vote: %v, guess key: %#x\n", vote, guess_key)
 	}
+	rcvd_key[0] |= prob_key
 	fmt.Printf("most vote: %v, probable key: %#x\n", most_vote, prob_key)
 
 	most_vote = 0
@@ -56,6 +57,7 @@ func main() {
 
 		fmt.Printf("vote: %v, guess key: %#x\n", vote, guess_key)
 	}
+	rcvd_key[0] |= (prob_key << 4)
 	fmt.Printf("most vote: %v, probable key: %#x\n", most_vote, prob_key)
 
 	most_vote = 0
@@ -78,6 +80,7 @@ func main() {
 
 		fmt.Printf("vote: %v, guess key: %#x\n", vote, guess_key)
 	}
+	rcvd_key[1] |= prob_key
 	fmt.Printf("most vote: %v, probable key: %#x\n", most_vote, prob_key)
 
 	most_vote = 0
@@ -100,30 +103,13 @@ func main() {
 
 		fmt.Printf("vote: %v, guess key: %#x\n", vote, guess_key)
 	}
+	rcvd_key[1] |= (prob_key << 4)
 	fmt.Printf("most vote: %v, probable key: %#x\n", most_vote, prob_key)
 
-	/*
-		for hb := 0; hb < 16; hb += 0x1 {
-			guess_key[1] = uint8(hb)
-			for lb := 0; lb == 0; lb++ {
-				guess_key[0] = uint8(lb)
-				vote, err := DiffRound(ebox, diff, key, guess_key, guess_diff)
-				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
-				}
-				if vote >= 0 {
-					fmt.Printf("vote: %v, guess key: %#x\n", vote, guess_key)
-				}
-			}
-		}
-	*/
-	/*
-		vote, err := DiffRound(ebox, diff, key, guess_key, guess_diff)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-		fmt.Printf("vote: %v, guess key: %#x\n", vote, guess_key)
-	*/
+	fmt.Printf("%#x\n", rcvd_key)
+
+	// Recover the second last key
+
 }
 
 func DiffRound(e *crypto.Ebox, diff []uint8, key [][2]uint8, guess_key []uint8, guess_diff []uint8) (vote uint64, err error) {
