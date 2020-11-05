@@ -41,9 +41,9 @@ func main() {
 }
 */
 
-func (e Ebox) encRound(inp []uint8) (outp []uint8, err error) {
+func (e Ebox) EncRound(inp []uint8) (outp []uint8, err error) {
 	if inp == nil || e.Sbox == nil {
-		err = errors.New("Error: encRound check failed")
+		err = errors.New("Error: EncRound check failed")
 		return
 	}
 	inp_in4bit := make([]uint8, 4, 4)
@@ -62,9 +62,9 @@ func (e Ebox) encRound(inp []uint8) (outp []uint8, err error) {
 	return
 }
 
-func (e Ebox) decRound(inp []uint8) (outp []uint8, err error) {
+func (e Ebox) DecRound(inp []uint8) (outp []uint8, err error) {
 	if inp == nil || e.Re_sbox == nil {
-		err = errors.New("Error: decRound check failed")
+		err = errors.New("Error: DecRound check failed")
 		return
 	}
 	inp_in4bit := make([]uint8, 4, 4)
@@ -98,7 +98,7 @@ func (e Ebox) Encrypt(msg []uint8, key [][2]uint8) (cipher []uint8, err error) {
 	for i := uint64(0); i < e.Roundnb-1; i++ {
 		cipher[0] = cipher[0] ^ key[i][0]
 		cipher[1] = cipher[1] ^ key[i][1]
-		cipher, err = e.encRound(cipher)
+		cipher, err = e.EncRound(cipher)
 		if err != nil {
 			return
 		}
@@ -135,7 +135,7 @@ func (e Ebox) Decrypt(cipher []uint8, key [][2]uint8) (msg []uint8, err error) {
 	msg[1] = msg[1] ^ key[e.Roundnb-1][1]
 
 	for i := e.Roundnb - 2; i >= 0 && i < e.Roundnb; i-- {
-		msg, err = e.decRound(msg)
+		msg, err = e.DecRound(msg)
 		if err != nil {
 			return
 		}
